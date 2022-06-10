@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/ocr-ai-textxlassification'),
+      dir: require('path').join(__dirname, './coverage/ocr-ai-textclassification'),
       subdir: '.',
       reporters: [
         { type: 'html' },
