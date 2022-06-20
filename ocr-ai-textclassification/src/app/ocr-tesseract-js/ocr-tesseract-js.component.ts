@@ -82,6 +82,7 @@ export class OcrTesseractJsComponent implements OnInit {
       }
       console.log(`total execution time: ${(new Date().getTime() - start.getTime())/1000}s`);
       //console.log(doctext)
+      (<HTMLParagraphElement>document.querySelector("p")).innerHTML = `Execution time: ${(new Date().getTime() - start.getTime())/1000}s`
     }
     fr.readAsArrayBuffer(pdf)
   }
