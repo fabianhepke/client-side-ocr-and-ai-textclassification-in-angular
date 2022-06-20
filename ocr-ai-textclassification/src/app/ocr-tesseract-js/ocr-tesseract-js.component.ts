@@ -3,6 +3,7 @@ import { pdfToPng } from 'pdf-to-png-converter';
 import * as Tesseract from 'tesseract.js';
 import * as pdfjs from 'pdfjs';
 import { createCanvas } from 'canvas';
+import { time } from 'console';
 
 
 
@@ -12,7 +13,7 @@ import { createCanvas } from 'canvas';
   styleUrls: ['./ocr-tesseract-js.component.css']
 })
 export class OcrTesseractJsComponent implements OnInit {
-
+  ocrText = "";
 
   constructor() { }
 
@@ -79,10 +80,11 @@ export class OcrTesseractJsComponent implements OnInit {
           doctext += text["data"].text;
           console.log(`time: ${(new Date().getTime() - start.getTime())/1000}s`);
         });
+        (<HTMLParagraphElement>document.getElementById('text')).innerHTML = doctext;
+        (<HTMLParagraphElement>document.querySelector("p")).innerHTML = `time: ${(new Date().getTime() - start.getTime())/1000}s`;
+
       }
       console.log(`total execution time: ${(new Date().getTime() - start.getTime())/1000}s`);
-      //console.log(doctext)
-      (<HTMLParagraphElement>document.querySelector("p")).innerHTML = `Execution time: ${(new Date().getTime() - start.getTime())/1000}s`
     }
     fr.readAsArrayBuffer(pdf)
   }
