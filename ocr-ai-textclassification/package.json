@@ -1,9 +1,10 @@
 {
   "name": "ocr-ai-textclassification",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node ./src/app/ocr-webassembly/copy-static-assets.js && ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -19,9 +20,12 @@
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
     "canvas": "^2.9.1",
+    "fs": "^0.0.1-security",
+    "module": "^1.2.5",
     "pdf-to-png-converter": "^2.1.1",
     "pdfjs": "^2.4.7",
     "rxjs": "~7.4.0",
+    "tesseract-wasm": "^0.5.0",
     "tesseract.js": "^2.1.5",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
