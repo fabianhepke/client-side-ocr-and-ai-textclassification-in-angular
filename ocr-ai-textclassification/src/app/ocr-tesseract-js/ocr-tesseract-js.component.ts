@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { createWorker } from 'tesseract.js';
 import { pdfToPng } from 'pdf-to-png-converter';
 import * as Tesseract from 'tesseract.js';
 import * as pdfjs from 'pdfjs';
@@ -6,6 +7,8 @@ import { createCanvas } from 'canvas';
 import { time } from 'console';
 
 
+let worker = createWorker();
+let isReady = false;
 
 @Component({
   selector: 'app-ocr-tesseract-js',
@@ -15,10 +18,20 @@ import { time } from 'console';
 export class OcrTesseractJsComponent implements OnInit {
   ocrText = "";
 
-  constructor() { }
+  constructor() { 
+  this.loadWorker();
+  }
 
   ngOnInit(): void {
 
+  }
+
+  public async loadWorker() {
+    await worker.load();
+    await worker.loadLanguage('deu');
+    await worker.initialize('deu');
+    isReady = true;
+    console.log('worker is ready')
   }
 
 
@@ -35,7 +48,7 @@ export class OcrTesseractJsComponent implements OnInit {
   }
 
   public async convertPdfToPng() {
-    let doctext:string = "";
+    let doctext:string = "text:\n";
     let start = new Date();
     let inputField = <HTMLInputElement>document.getElementById("file-input");
     if (inputField.files == null) {
@@ -76,10 +89,20 @@ export class OcrTesseractJsComponent implements OnInit {
           viewport: viewport
         }).promise; 
 
-        await Tesseract.recognize(canvas.toDataURL(), "deu").then(text => {
-          doctext += text["data"].text;
+        // await Tesseract.recognize(canvas.toDataURL(), "deu").then(text => {
+        //   doctext += text["data"].text;
+        //   console.log(`time: ${(new Date().getTime() - start.getTime())/1000}s`);
+        // });
+        if (!isReady) {
+          console.log('Worker isn\'t ready');
+          return;
+        }
+        await worker.recognize(canvas.toDataURL()).then(result => {
+          doctext += result["data"].text;
           console.log(`time: ${(new Date().getTime() - start.getTime())/1000}s`);
         });
+
+
         (<HTMLParagraphElement>document.getElementById('text')).innerHTML = doctext;
         (<HTMLParagraphElement>document.querySelector("p")).innerHTML = `time: ${(new Date().getTime() - start.getTime())/1000}s`;
 
@@ -89,24 +112,26 @@ export class OcrTesseractJsComponent implements OnInit {
     fr.readAsArrayBuffer(pdf)
   }
 
-  public recognizeText() {
-    let startTime = new Date();
-    let fileInput = <HTMLInputElement>document.getElementById("file-input");
-    let files = fileInput.files;
+  /* 
+   * Code of the first Experiment:
+  */
 
-    if (files == null) {
-      console.log("No file selected!");
-      return;
-    }
+  // public recognizeText() {
+  //   let startTime = new Date();
+  //   let fileInput = <HTMLInputElement>document.getElementById("file-input");
+  //   let files = fileInput.files;
 
-    let file = files[0];
+  //   if (files == null) {
+  //     console.log("No file selected!");
+  //     return;
+  //   }
 
-    Tesseract.recognize(file, "deu").then(result => {
-      console.log(result);
-      console.log(`Total execution time=${(new Date().getTime() - startTime.getTime()) / 1000}s`);
-    });
-  }
+  //   let file = files[0];
 
+  //   Tesseract.recognize(file, "deu").then(result => {
+  //     console.log(result);
+  //     console.log(`Total execution time=${(new Date().getTime() - startTime.getTime()) / 1000}s`);
+  //   });
+  // }
 
 }
-
