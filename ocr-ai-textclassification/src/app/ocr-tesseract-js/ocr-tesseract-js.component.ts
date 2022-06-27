@@ -92,7 +92,7 @@ export class OcrTesseractJsComponent implements OnInit {
     this.results = new Array(doc.numPages);
     for (let i = 1; i <= doc.numPages; i++) {
       let page = await doc.getPage(i);
-      let viewport = page.getViewport({ scale: 1 });
+      let viewport = page.getViewport({ scale: 1.4 });
 
       this.setCanvasSize(viewport);
       await this.renderPage(page, viewport);
