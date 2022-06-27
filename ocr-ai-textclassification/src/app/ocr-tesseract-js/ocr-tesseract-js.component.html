@@ -1,7 +1,8 @@
-<input id="file-input" type="file" (change)="convertPdfToPng()" accept=".pdf">
-<button (click)="convertPdfToPng()">Text erkennen</button>
+<input id="file-input" type="file" (change)="doOCR()" accept=".pdf">
+<button (click)="doOCR()">Text erkennen</button>
 <br> <br>
-<p>time: </p>
+<p>time: {{ timeDiff }}s</p>
 <br> <br>
 <canvas id="image-canvas" style="visibility: visible;"></canvas>
-<p id="text">text:</p>
+<br><br>
+<p id="text">text: <br>{{ doctext }}</p>
