@@ -14,18 +14,18 @@ import { time } from 'console';
   styleUrls: ['./ocr-tesseract-js.component.css']
 })
 export class OcrTesseractJsComponent implements OnInit {
-  isReady:boolean = false;
+  isReady: boolean = false;
   doctext: string;
   start: Date;
   timeDiff: number;
   pdfjsLib: any;
   pdfjsWorker: any;
   context: CanvasRenderingContext2D | null = null;
-  canvas:HTMLCanvasElement | null = null;
-  scheduler:any;
-  results:Array<string> = new Array;
-  
-  constructor() { 
+  canvas: HTMLCanvasElement | null = null;
+  scheduler: any;
+  results: Array<string> = new Array;
+
+  constructor() {
     this.scheduler = createScheduler();
     this.loadScheduler();
     this.timeDiff = 0;
@@ -35,12 +35,12 @@ export class OcrTesseractJsComponent implements OnInit {
     this.pdfjsWorker = require('pdfjs-dist/build/pdf.worker.entry');
     this.pdfjsLib.GlobalWorkerOptions.workerSrc = this.pdfjsWorker;
   }
-  
+
   ngOnInit(): void {
     console.log('Component initialized');
   }
-  
-  ngAfterContentInit():void {
+
+  ngAfterContentInit(): void {
     console.log('Content initialized')
     this.canvas = <HTMLCanvasElement>document.getElementById('image-canvas');
     this.context = this.canvas.getContext("2d");
@@ -65,34 +65,34 @@ export class OcrTesseractJsComponent implements OnInit {
     let pdf = this.getDocument()
     let fr = new FileReader();
 
-    fr.onloadend = async (e) =>  {
+    fr.onloadend = async (e) => {
       this.handleDocument(e)
     }
     fr.readAsArrayBuffer(pdf!)
   }
-  
-  async handleDocument(e:any): Promise<void> {
-    let pdfArrayBuffer:ArrayBuffer = new ArrayBuffer(1);
+
+  async handleDocument(e: any): Promise<void> {
+    let pdfArrayBuffer: ArrayBuffer = new ArrayBuffer(1);
     pdfArrayBuffer = e.target?.result as ArrayBuffer;
     let data = new Uint8Array(pdfArrayBuffer);
-    
+
     let dataObj = {
       data,
       cMapUrl: "../../../node_modules/odfjs-dist/cmaps/",
       cMapPacked: true,
       standardFontDataUrl: "../../../node_modules/spdfjs-dist/standard_fonts/"
     };
-    
+
     let doc = await this.pdfjsLib.getDocument(dataObj).promise;
-    
+
     this.iterateOverDocPages(doc);
   }
 
-  async iterateOverDocPages(doc:any) {
+  async iterateOverDocPages(doc: any) {
     this.results = new Array(doc.numPages);
     for (let i = 1; i <= doc.numPages; i++) {
       let page = await doc.getPage(i);
-      let viewport = page.getViewport({ scale: 1.4 });
+      let viewport = page.getViewport({ scale: 1.2 });
 
       this.setCanvasSize(viewport);
       await this.renderPage(page, viewport);
@@ -110,8 +110,7 @@ export class OcrTesseractJsComponent implements OnInit {
       return;
     }
     this.scheduler.addJob('recognize', this.canvas.toDataURL()).then((result: any) => {
-      console.log('page ' + currentPage + ' is ready!');
-      console.log(this.results);
+      console.log('page ' + (currentPage + 1) + ' is ready!');
       this.timeDiff = (new Date().getTime() - this.start.getTime()) / 1000;
       this.results[currentPage] = result["data"].text;
       this.doctext = this.results.join(' ');
@@ -132,7 +131,7 @@ export class OcrTesseractJsComponent implements OnInit {
       viewport: viewport
     }).promise;
   }
-  
+
   getDocument() {
     let inputField = <HTMLInputElement>document.getElementById("file-input");
     if (inputField.files == null) {
