@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { OcrTesseractJsComponent } from './ocr-tesseract-js/ocr-tesseract-js.component';
 import { CreateTrainingDataComponent } from './create-training-data/create-training-data.component';
+import { AiTextclassificationComponent } from './ai-textclassification/ai-textclassification.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     OcrTesseractJsComponent,
-    CreateTrainingDataComponent
+    CreateTrainingDataComponent,
+    AiTextclassificationComponent
   ],
   imports: [
     BrowserModule,
