@@ -1,12 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { createWorker, createScheduler } from 'tesseract.js';
-import { pdfToPng } from 'pdf-to-png-converter';
-import * as Tesseract from 'tesseract.js';
-import * as pdfjs from 'pdfjs';
-import { createCanvas } from 'canvas';
-import { time } from 'console';
-
-
+import { DocTextService } from '../doc-text.service';
 
 @Component({
   selector: 'app-ocr-tesseract-js',
@@ -14,23 +8,29 @@ import { time } from 'console';
   styleUrls: ['./ocr-tesseract-js.component.css']
 })
 export class OcrTesseractJsComponent implements OnInit {
-  isReady: boolean = false;
-  doctext: string;
-  start: Date;
-  timeDiff: number;
-  pdfjsLib: any;
-  pdfjsWorker: any;
-  context: CanvasRenderingContext2D | null = null;
-  canvas: HTMLCanvasElement | null = null;
-  scheduler: any;
-  results: Array<string> = new Array;
+  public isReady: boolean = false;
+  public isFileSelected:boolean = false;
+  public isLoading:boolean = false;
+  public doctext: string;
+  public disable:string = "disable";
+  public filename:string = "Keine Datei "
+  public timeDiff: number = 0;
+  public currentWorkerNum:number = 0;
+  public start: Date = new Date();
+  public results: Array<string> = new Array;
+  public context: CanvasRenderingContext2D | null = null;
+  public canvas: HTMLCanvasElement | null = null;
+  public pdfjsLib: any;
+  public pdfjsWorker: any;
+  public scheduler: any;
 
-  constructor() {
+  public WORKER_NUM:number = 1;
+  public PAGES:number = 1;
+
+  constructor(private _docTextService: DocTextService) {
     this.scheduler = createScheduler();
     this.loadScheduler();
-    this.timeDiff = 0;
     this.doctext = "";
-    this.start = new Date();
     this.pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
     this.pdfjsWorker = require('pdfjs-dist/build/pdf.worker.entry');
     this.pdfjsLib.GlobalWorkerOptions.workerSrc = this.pdfjsWorker;
@@ -46,19 +46,45 @@ export class OcrTesseractJsComponent implements OnInit {
     this.context = this.canvas.getContext("2d");
   }
 
+  public changeFile() {
+    let inputElement = (<HTMLInputElement>document.getElementById("file-input"));
+    if (inputElement.files?.length! > 1) {
+      this.filename = inputElement.files?.length + " Dateien ";
+    }
+    else if (inputElement.files?.length! === 1){
+      this.filename = inputElement.files![0].name;
+    }
+    else {
+      this.filename = "Keine Datei "
+    }
+
+    this.isFileSelected = true;
+
+    if (this.isReady) {
+      this.disable = "";
+    }
+  }
+
   public async loadScheduler() {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < this.WORKER_NUM; i++) {
       let worker = createWorker();
       await worker.load();
       await worker.loadLanguage('deu');
       await worker.initialize('deu');
       this.scheduler.addWorker(worker);
+      this.currentWorkerNum++;
     }
     this.isReady = true;
+
+    if (this.isFileSelected) {
+      this.disable = "";
+    }
     console.log('tesseract.js: scheduler is ready!');
   }
 
   public async doOCR(): Promise<void> {
+    this.isLoading = true;
+    this.disable = "disable"
     this.start = new Date();
     this.timeDiff = 0;
     this.doctext = "";
@@ -90,9 +116,9 @@ export class OcrTesseractJsComponent implements OnInit {
 
   async iterateOverDocPages(doc: any) {
     this.results = new Array(doc.numPages);
-    for (let i = 1; i <= doc.numPages; i++) {
+    for (let i = 1; i <= this.PAGES; i++) {
       let page = await doc.getPage(i);
-      let viewport = page.getViewport({ scale: 1.2 });
+      let viewport = page.getViewport({ scale: 1.4 });
 
       this.setCanvasSize(viewport);
       await this.renderPage(page, viewport);
@@ -114,6 +140,10 @@ export class OcrTesseractJsComponent implements OnInit {
       this.timeDiff = (new Date().getTime() - this.start.getTime()) / 1000;
       this.results[currentPage] = result["data"].text;
       this.doctext = this.results.join(' ');
+      this._docTextService.setText(this.prepareText(this.doctext));
+      if (!this.results.includes("")){
+        this.isLoading = false;
+      }
     });
   }
 
@@ -139,4 +169,13 @@ export class OcrTesseractJsComponent implements OnInit {
     }
     return inputField.files[0];
   }
+
+  prepareText(text:string):string {
+    let blacklist = "!§&/()=?\\\'#+*;[]{}@_,"
+    for (let i = 0; i < blacklist.length; i++) {
+      text = text.replace(blacklist.charAt(i), " ");
+    }
+    return text;
+  }
+
 }
