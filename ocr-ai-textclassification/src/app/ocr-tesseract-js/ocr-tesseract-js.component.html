@@ -1,8 +1,16 @@
-<input id="file-input" type="file" (change)="doOCR()" accept=".pdf">
-<button (click)="doOCR()">Text erkennen</button>
-<br> <br>
-<p>time: {{ timeDiff }}s</p>
-<br> <br>
-<canvas id="image-canvas" style="visibility: visible;"></canvas>
-<br><br>
-<p id="text">text: <br>{{ doctext }}</p>
+<div id="input-container" class="container">
+    <input id="file-input" (change)="changeFile()" type="file" accept=".pdf">
+    <label for="file-input" class="button">Datei auswählen</label>
+    <button id="ocr-button" class="button" (click)="doOCR()" [disabled]="disable">Text erkennen</button>
+    <div class="loader" [hidden]="!isLoading"></div> 
+    <br><br><br>
+    <p>{{ filename }} ausgewählt</p>
+</div>
+<div class="container">
+    <p>{{ currentWorkerNum }} von {{ WORKER_NUM }} Workern geladen!</p>
+</div>
+<div id="info container" class="container">
+    <p>time: {{ timeDiff }}s</p>
+    <p id="text">text: <br>{{ doctext }}</p>
+</div>
+<canvas id="image-canvas" style="visibility: hidden;"></canvas>

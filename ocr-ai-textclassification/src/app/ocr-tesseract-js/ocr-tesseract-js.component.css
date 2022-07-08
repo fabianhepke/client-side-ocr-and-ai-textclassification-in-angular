@@ -1,0 +1,53 @@
+#container {
+    background-color: white;
+    border-radius: 40px;
+}
+
+input[type="file"] {
+    opacity: 0;
+    z-index: -1;
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 0.1px;
+    height: 0.1px;
+    user-select: none;
+}
+
+
+.button:hover {
+    background-color: #0f4872;
+    border: solid #0f4872;
+    border-width: 2px;
+}
+
+.button:disabled {
+    background-color: #aaa;
+    border: solid #aaa;
+    cursor: not-allowed;
+    box-shadow: #aaa 2px 2px 5px;
+}
+
+.loader {
+    margin: 10px;
+    padding: 3px;
+    float: left;
+    border: 5px solid #f3f3f3;
+    /* Light grey */
+    border-top: 5px solid #0a3250;
+    /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
